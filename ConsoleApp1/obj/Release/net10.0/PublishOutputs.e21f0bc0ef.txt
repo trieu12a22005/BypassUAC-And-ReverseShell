@@ -1,0 +1,5 @@
+C:\update\ConsoleApp1.exe
+C:\update\ConsoleApp1.dll
+C:\update\ConsoleApp1.deps.json
+C:\update\ConsoleApp1.runtimeconfig.json
+C:\update\ConsoleApp1.pdb
