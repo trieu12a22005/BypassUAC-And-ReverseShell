@@ -1,8 +1,8 @@
 # Process Snapshot
 
-Simple example that shows how to call `NtQuerySystemInformation` to get a snapshot of all running processes using indirect syscalls.
+Ví dụ đơn giản cho thấy cách gọi `NtQuerySystemInformation` để lấy snapshot của tất cả tiến trình đang chạy sử dụng indirect syscalls.
 
-Compile with:
+Compile với:
 
 ```bash
 GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o process_snapshot.exe

@@ -1,13 +1,13 @@
 # sc_inject
 
-Extremely simple shellcode injector PoC, that injects calc shellcode using syscalls for `NtAllocateVirtualMemory`+`NtWriteVirtualMemory`+`NtCreateThreadEx`.
+PoC injector shellcode cực kỳ đơn giản, inject shellcode calc sử dụng syscalls cho `NtAllocateVirtualMemory`+`NtWriteVirtualMemory`+`NtCreateThreadEx`.
 
-Using build tags, you can compile both the direct and indirect syscall versions of the injector, if you want to run them against defensive tools to check out the detection and compare the IOCs of each technique.
+Sử dụng build tags, bạn có thể compile cả phiên bản direct và indirect syscall của injector, nếu bạn muốn chạy chúng chống lại các công cụ phòng thủ để kiểm tra phát hiện và so sánh IOCs của từng kỹ thuật.
 
 ```bash
-# indirect syscall version (default)
+# phiên bản indirect syscall (mặc định)
 GOOS=windows GOARCH=amd64 go build -ldflags "-s -w" -o sc_inject_indirect.exe
 
-# direct syscall version
+# phiên bản direct syscall
 GOOS=windows GOARCH=amd64 go build -tags='direct' -ldflags "-s -w" -o sc_inject_direct.exe
 ```

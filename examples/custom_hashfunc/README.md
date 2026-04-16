@@ -1,10 +1,10 @@
 # Custom Hash
 
-Acheron allows passing a custom hashing function to the constructor, so that it can be used to store and retrieve the syscall structs from their map for better OPSEC.
+Acheron cho phép truyền một hàm hash tùy chỉnh vào constructor, để nó có thể được sử dụng để lưu trữ và lấy các struct syscall từ map của chúng để có OPSEC tốt hơn.
 
-In this example the custom function XORes the string buffer with `0xdeadbeef` key, and runs the result into SHA1 hash function.
+Trong ví dụ này, hàm tùy chỉnh XOR buffer chuỗi với key `0xdeadbeef`, và chạy kết quả vào hàm hash SHA1.
 
-Compile with:
+Compile với:
 
 ```bash
 GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o custom_hash.exe main.go
