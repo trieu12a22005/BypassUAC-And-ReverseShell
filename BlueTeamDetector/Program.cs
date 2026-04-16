@@ -16,6 +16,8 @@ namespace BlueTeamDetector
                 var analyzer = new EventLogAnalyzer();
                 var findings = new List<DetectionFinding>();
 
+                var binaryAnalyzer = new BinaryAnalyzer();
+
                 switch (options.Mode)
                 {
                     case ExecutionMode.ScanRepo:
@@ -23,6 +25,9 @@ namespace BlueTeamDetector
                         break;
                     case ExecutionMode.ScanEvents:
                         findings.AddRange(analyzer.Scan(options.TargetPath));
+                        break;
+                    case ExecutionMode.ScanBinary:
+                        findings.AddRange(binaryAnalyzer.Scan(options.TargetPath));
                         break;
                     case ExecutionMode.Demo:
                         findings.AddRange(scanner.Scan(options.TargetPath));
@@ -60,7 +65,8 @@ namespace BlueTeamDetector
             Console.WriteLine("Usage:");
             Console.WriteLine("  BlueTeamDetector scan-repo <path> [--json <output.json>]");
             Console.WriteLine("  BlueTeamDetector scan-events <sample-events.json> [--json <output.json>]");
-            Console.WriteLine("  BlueTeamDetector demo [repoPath] [eventsPath] [--json <output.json>]");
+            Console.WriteLine("  BlueTeamDetector scan-binary <file.exe> [--json <output.json>]");
+            Console.WriteLine("  BlueTeamDetector demo [repoPath] [eventsPath] [--json <output.json>]"  );
         }
     }
 }

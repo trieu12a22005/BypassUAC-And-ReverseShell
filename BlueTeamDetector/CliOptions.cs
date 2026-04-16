@@ -8,6 +8,7 @@ namespace BlueTeamDetector
         Unknown,
         ScanRepo,
         ScanEvents,
+        ScanBinary,
         Demo
     }
 
@@ -37,6 +38,11 @@ namespace BlueTeamDetector
                     options.TargetPath = args.Length > 1
                         ? Normalize(args[1])
                         : Normalize(Path.Combine("samples", "sample-sysmon-events.json"));
+                    break;
+                case ExecutionMode.ScanBinary:
+                    if (args.Length < 2)
+                        throw new ArgumentException("scan-binary requires a file path.");
+                    options.TargetPath = Normalize(args[1]);
                     break;
                 case ExecutionMode.Demo:
                     options.TargetPath = args.Length > 1 ? Normalize(args[1]) : Normalize("..");
@@ -77,6 +83,11 @@ namespace BlueTeamDetector
             if (string.Equals(rawMode, "scan-events", StringComparison.OrdinalIgnoreCase))
             {
                 return ExecutionMode.ScanEvents;
+            }
+
+            if (string.Equals(rawMode, "scan-binary", StringComparison.OrdinalIgnoreCase))
+            {
+                return ExecutionMode.ScanBinary;
             }
 
             if (string.Equals(rawMode, "demo", StringComparison.OrdinalIgnoreCase))
