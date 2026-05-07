@@ -1,0 +1,117 @@
+<!-- sysmon-uac-config.xml
+     Cau hinh Sysmon toi uu de phat hien UAC Bypass va Shellcode Runner.
+     Cai dat: sysmon64.exe -accepteula -i sysmon-uac-config.xml
+     Cap nhat: sysmon64.exe -c sysmon-uac-config.xml
+-->
+<Sysmon schemaversion="4.90">
+    <HashAlgorithms>SHA256,MD5</HashAlgorithms>
+    <EventFiltering>
+
+        <!-- ============================================ -->
+        <!-- Event ID 1: Process Creation                 -->
+        <!-- Ghi log khi tien trinh moi duoc tao          -->
+        <!-- ============================================ -->
+        <RuleGroup name="UAC Bypass Process Detection" groupRelation="or">
+            <ProcessCreate onmatch="include">
+                <!-- Auto-elevated binaries thuong bi loi dung -->
+                <Image condition="end with">fodhelper.exe</Image>
+                <Image condition="end with">eventvwr.exe</Image>
+                <Image condition="end with">ComputerDefaults.exe</Image>
+                <Image condition="end with">winver.exe</Image>
+                <Image condition="end with">sdclt.exe</Image>
+                <Image condition="end with">slui.exe</Image>
+                <Image condition="end with">wsreset.exe</Image>
+                <Image condition="end with">cmstp.exe</Image>
+
+                <!-- Tien trinh chay tu duong dan dang nghi -->
+                <Image condition="contains">\update\</Image>
+                <Image condition="contains">\temp\</Image>
+                <Image condition="contains">\staging\</Image>
+
+                <!-- Tien trinh voi integrity level cao -->
+                <IntegrityLevel condition="is">High</IntegrityLevel>
+                <IntegrityLevel condition="is">System</IntegrityLevel>
+
+                <!-- Parent process bat thuong -->
+                <ParentImage condition="end with">ComputerDefaults.exe</ParentImage>
+                <ParentImage condition="end with">fodhelper.exe</ParentImage>
+                <ParentImage condition="end with">eventvwr.exe</ParentImage>
+                <ParentImage condition="end with">sdclt.exe</ParentImage>
+
+                <!-- Command line dang nghi -->
+                <CommandLine condition="contains">ConsoleApp1</CommandLine>
+                <CommandLine condition="contains">shellcode</CommandLine>
+                <CommandLine condition="contains">bypass</CommandLine>
+            </ProcessCreate>
+        </RuleGroup>
+
+        <!-- ============================================ -->
+        <!-- Event ID 3: Network Connection               -->
+        <!-- Ghi log ket noi mang tu tien trinh dang nghi -->
+        <!-- ============================================ -->
+        <RuleGroup name="Suspicious Network Connections" groupRelation="or">
+            <NetworkConnect onmatch="include">
+                <!-- Tien trinh tu duong dan dang nghi -->
+                <Image condition="contains">\update\</Image>
+                <Image condition="contains">\temp\</Image>
+                <Image condition="contains">\Users\</Image>
+
+                <!-- Port thuong dung cho reverse shell -->
+                <DestinationPort condition="is">4444</DestinationPort>
+                <DestinationPort condition="is">4443</DestinationPort>
+                <DestinationPort condition="is">8080</DestinationPort>
+                <DestinationPort condition="is">8443</DestinationPort>
+                <DestinationPort condition="is">1337</DestinationPort>
+                <DestinationPort condition="is">9001</DestinationPort>
+            </NetworkConnect>
+        </RuleGroup>
+
+        <!-- ============================================ -->
+        <!-- Event ID 11: File Create                     -->
+        <!-- Ghi log khi file moi xuat hien               -->
+        <!-- ============================================ -->
+        <RuleGroup name="Suspicious File Creation" groupRelation="or">
+            <FileCreate onmatch="include">
+                <TargetFilename condition="contains">\update\</TargetFilename>
+                <TargetFilename condition="end with">.exe</TargetFilename>
+                <TargetFilename condition="end with">.dll</TargetFilename>
+                <TargetFilename condition="end with">.scr</TargetFilename>
+                <TargetFilename condition="end with">.bat</TargetFilename>
+                <TargetFilename condition="end with">.ps1</TargetFilename>
+            </FileCreate>
+        </RuleGroup>
+
+        <!-- ============================================ -->
+        <!-- Event ID 13: Registry Value Set              -->
+        <!-- Ghi log khi registry bi sua doi              -->
+        <!-- ============================================ -->
+        <RuleGroup name="UAC Bypass Registry Modifications" groupRelation="or">
+            <RegistryEvent onmatch="include">
+                <!-- fodhelper.exe bypass -->
+                <TargetObject condition="contains">ms-settings\shell\open\command</TargetObject>
+                <!-- eventvwr.exe bypass -->
+                <TargetObject condition="contains">mscfile\shell\open\command</TargetObject>
+                <!-- sdclt.exe bypass -->
+                <TargetObject condition="contains">exefile\shell\runas\command</TargetObject>
+                <!-- Persistence via Run key -->
+                <TargetObject condition="contains">\CurrentVersion\Run</TargetObject>
+            </RegistryEvent>
+        </RuleGroup>
+
+        <!-- ============================================ -->
+        <!-- Event ID 10: Process Access                  -->
+        <!-- Phat hien process injection / handle dup     -->
+        <!-- ============================================ -->
+        <RuleGroup name="Process Access Detection" groupRelation="or">
+            <ProcessAccess onmatch="include">
+                <!-- Quyen truy cap dang nghi vao tien trinh khac -->
+                <GrantedAccess condition="is">0x1F0FFF</GrantedAccess>
+                <GrantedAccess condition="is">0x1FFFFF</GrantedAccess>
+                <!-- Tien trinh nguon tu duong dan dang nghi -->
+                <SourceImage condition="contains">\update\</SourceImage>
+                <SourceImage condition="contains">\temp\</SourceImage>
+            </ProcessAccess>
+        </RuleGroup>
+
+    </EventFiltering>
+</Sysmon>

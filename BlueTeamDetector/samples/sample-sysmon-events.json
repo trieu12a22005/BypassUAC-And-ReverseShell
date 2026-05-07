@@ -1,0 +1,43 @@
+[
+  {
+    "EventId": 1,
+    "TimestampUtc": "2026-04-07T05:10:00Z",
+    "Image": "C:\\Users\\student\\Desktop\\test.exe",
+    "ParentImage": "C:\\Windows\\explorer.exe",
+    "IntegrityLevel": "Medium",
+    "CommandLine": "C:\\Users\\student\\Desktop\\test.exe"
+  },
+  {
+    "EventId": 1,
+    "TimestampUtc": "2026-04-07T05:10:08Z",
+    "Image": "C:\\Windows\\System32\\winver.exe",
+    "ParentImage": "C:\\Users\\student\\Desktop\\test.exe",
+    "IntegrityLevel": "High",
+    "CommandLine": "C:\\Windows\\System32\\winver.exe"
+  },
+  {
+    "EventId": 1,
+    "TimestampUtc": "2026-04-07T05:10:16Z",
+    "Image": "C:\\Windows\\System32\\ComputerDefaults.exe",
+    "ParentImage": "C:\\Users\\student\\Desktop\\test.exe",
+    "IntegrityLevel": "High",
+    "CommandLine": "C:\\Windows\\System32\\ComputerDefaults.exe"
+  },
+  {
+    "EventId": 1,
+    "TimestampUtc": "2026-04-07T05:10:22Z",
+    "Image": "C:\\update\\ConsoleApp1.exe",
+    "ParentImage": "C:\\Windows\\System32\\ComputerDefaults.exe",
+    "IntegrityLevel": "High",
+    "CommandLine": "C:\\update\\ConsoleApp1.exe"
+  },
+  {
+    "EventId": 3,
+    "TimestampUtc": "2026-04-07T05:10:30Z",
+    "Image": "C:\\update\\ConsoleApp1.exe",
+    "ParentImage": "C:\\Windows\\System32\\ComputerDefaults.exe",
+    "IntegrityLevel": "High",
+    "DestinationIp": "10.10.14.8",
+    "DestinationPort": 4444
+  }
+]

@@ -1,0 +1,18 @@
+Windows Registry Editor Version 5.00
+
+; Sua duong dan D:\\Tools\\CiMalwareScan\\CiMalwareScan.exe cho dung voi may cua ban.
+; Sau do double-click file .reg nay de them menu chuot phai.
+
+[HKEY_CLASSES_ROOT\*\shell\CiMalwareScan]
+@="Scan bằng CI Malware Scan"
+"Icon"="D:\\Tools\\CiMalwareScan\\CiMalwareScan.exe"
+
+[HKEY_CLASSES_ROOT\*\shell\CiMalwareScan\command]
+@="\"D:\\Tools\\CiMalwareScan\\CiMalwareScan.exe\" \"%1\""
+
+[HKEY_CLASSES_ROOT\Directory\shell\CiMalwareScan]
+@="Scan bằng CI Malware Scan"
+"Icon"="D:\\Tools\\CiMalwareScan\\CiMalwareScan.exe"
+
+[HKEY_CLASSES_ROOT\Directory\shell\CiMalwareScan\command]
+@="\"D:\\Tools\\CiMalwareScan\\CiMalwareScan.exe\" \"%1\""
