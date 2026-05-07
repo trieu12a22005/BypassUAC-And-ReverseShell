@@ -1,7 +1,7 @@
 {
   "runtimeOptions": {
     "additionalProbingPaths": [
-      "d:\\1\\BypassUAC-And-ReverseShell\\.userprofile\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\hpgba\\.dotnet\\store\\|arch|\\|tfm|",
       "d:\\1\\BypassUAC-And-ReverseShell\\.nuget\\packages"
     ]
   }
